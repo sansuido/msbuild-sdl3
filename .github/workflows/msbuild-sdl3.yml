@@ -1,0 +1,140 @@
+name: MSBuild SDL3
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      id: checkput
+      uses: actions/checkout@v3
+    
+    - name: Set output date as output variable
+      id: output-date
+      run: |
+        echo "OUTPUT_DATE=$(date +'%Y-%m-%d')" >> "${env:GITHUB_OUTPUT}"
+        echo "OUTPUT_DATETIME=$(date +'%Y-%m-%d %H:%M:%S')" >> "${env:GITHUB_OUTPUT}"
+
+    - name: Show output date
+      id: echo-output-date
+      run: |
+        echo "${{steps.output-date.outputs.OUTPUT_DATE}}"
+        echo "${{steps.output-date.outputs.OUTPUT_DATETIME}}"
+
+    - name: Add MSBuild to PATH
+      id: msbuild-path
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Clone SDL repository
+      id: clone-repository
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      working-directory: ${{github.workspace}}
+      run: |
+        git clone https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/libsdl-org/SDL.git
+        git clone https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/libsdl-org/SDL_image.git
+        git clone https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/libsdl-org/SDL_mixer.git
+        git clone https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/libsdl-org/SDL_net.git
+        git clone https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/libsdl-org/SDL_ttf.git
+
+    - name: Run external ps1
+      id: run-external-ps1
+      run: |
+        powershell ${{github.workspace}}/SDL_image/external/Get-GitModules.ps1
+        powershell ${{github.workspace}}/SDL_mixer/external/Get-GitModules.ps1
+        powershell ${{github.workspace}}/SDL_ttf/external/Get-GitModules.ps1
+
+    - name: MSBuild Win32
+      id: msbuild-win32
+      run: |
+        msbuild ${{github.workspace}}/SDL/VisualC/SDL.sln /t:build /p:Configuration=Release /p:Platform="Win32"
+        msbuild ${{github.workspace}}/SDL_image/VisualC/SDL_image.sln /t:build /p:Configuration=Release /p:Platform="Win32"
+        msbuild ${{github.workspace}}/SDL_mixer/VisualC/SDL_mixer.sln /t:build /p:Configuration=Release /p:Platform="Win32"
+        msbuild ${{github.workspace}}/SDL_net/VisualC/SDL_net.sln /t:build /p:Configuration=Release /p:Platform="Win32"
+        msbuild ${{github.workspace}}/SDL_ttf/VisualC/SDL_ttf.sln /t:build /p:Configuration=Release /p:Platform="Win32"
+      continue-on-error: true
+
+    - name: MSBuild x64
+      id: msbuild-x64
+      run: |
+        msbuild ${{github.workspace}}/SDL/VisualC/SDL.sln /t:build /p:Configuration=Release /p:Platform="x64"
+        msbuild ${{github.workspace}}/SDL_image/VisualC/SDL_image.sln /t:build /p:Configuration=Release /p:Platform="x64"
+        msbuild ${{github.workspace}}/SDL_mixer/VisualC/SDL_mixer.sln /t:build /p:Configuration=Release /p:Platform="x64"
+        msbuild ${{github.workspace}}/SDL_net/VisualC/SDL_net.sln /t:build /p:Configuration=Release /p:Platform="x64"
+        msbuild ${{github.workspace}}/SDL_ttf/VisualC/SDL_ttf.sln /t:build /p:Configuration=Release /p:Platform="x64"
+      continue-on-error: true
+
+    - name: Copy files
+      id: copy-files
+      run: |
+        robocopy ${{github.workspace}}/SDL/include ${{github.workspace}}/dist/include/ /s /e
+        robocopy ${{github.workspace}}/SDL_image/include ${{github.workspace}}/dist/include/ /s /e
+        robocopy ${{github.workspace}}/SDL_mixer/include ${{github.workspace}}/dist/include/ /s /e
+        robocopy ${{github.workspace}}/SDL_ttf/include ${{github.workspace}}/dist/include/ /s /e
+        robocopy ${{github.workspace}}/SDL_net/include ${{github.workspace}}/dist/include/ /s /e
+        robocopy ${{github.workspace}}/SDL/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_image/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_mixer/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_net/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_ttf/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_image/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_mixer/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_net/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_ttf/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_image/VisualC/external/optional/x86 ${{github.workspace}}/dist/lib/x86 *.dll
+        robocopy ${{github.workspace}}/SDL_mixer/VisualC/external/optional/x86 ${{github.workspace}}/dist/lib/x86 *.dll
+        robocopy ${{github.workspace}}/SDL_image/VisualC/external/optional/x64 ${{github.workspace}}/dist/lib/x64 *.dll
+        robocopy ${{github.workspace}}/SDL_mixer/VisualC/external/optional/x64 ${{github.workspace}}/dist/lib/x64 *.dll
+        robocopy ${{github.workspace}}/SDL ${{github.workspace}}/dist/license/SDL LICENSE*.*
+        robocopy ${{github.workspace}}/SDL_image ${{github.workspace}}/dist/license/SDL_image LICENSE*.*
+        robocopy ${{github.workspace}}/SDL_mixer ${{github.workspace}}/dist/license/SDL_mixer LICENSE*.*
+        robocopy ${{github.workspace}}/SDL_net ${{github.workspace}}/dist/license/SDL_net LICENSE*.*
+        robocopy ${{github.workspace}}/SDL_ttf ${{github.workspace}}/dist/license/SDL_ttf LICENSE*.*
+        robocopy ${{github.workspace}}/SDL_image/VisualC/external/optional/x64 ${{github.workspace}}/dist/license/SDL_image LICENSE*.*
+        robocopy ${{github.workspace}}/SDL_mixer/VisualC/external/optional/x64 ${{github.workspace}}/dist/license/SDL_mixer LICENSE*.*
+        robocopy ${{github.workspace}}/SDL_ttf/VisualC/external/lib/x64 ${{github.workspace}}/dist/license/SDL_ttf LICENSE*.*
+      continue-on-error: true
+
+    - name: Zipping
+      id: zipping
+      run: powershell compress-archive ${{github.workspace}}/dist/* ${{github.workspace}}/SDL3-${{steps.output-date.outputs.OUTPUT_DATE}} -Force
+
+#    - name: Archive production artifacts
+#      id: artifact
+#      uses: actions/upload-artifact@v4
+#      with:
+#        name: ${{steps.output-date.outputs.OUTPUT_DATE}}
+#        path: ${{github.workspace}}/SDL3-${{steps.output-date.outputs.OUTPUT_DATE}}.zip
+
+    - name: Relase
+      id: release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      with:
+        tag_name: ${{steps.output-date.outputs.OUTPUT_DATE}}
+        release_name: ${{steps.output-date.outputs.OUTPUT_DATE}}
+        body: |
+          "timestamp: ${{steps.output-date.outputs.OUTPUT_DATETIME}}"
+
+    - name: Upload
+      id: upload
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      with:
+        upload_url: ${{steps.release.outputs.upload_url}}
+        asset_path: ${{github.workspace}}/SDL3-${{steps.output-date.outputs.OUTPUT_DATE}}.zip
+        asset_name: SDL3-${{steps.output-date.outputs.OUTPUT_DATE}}.zip
+        asset_content_type: application/zip
