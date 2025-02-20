@@ -196,22 +196,37 @@ jobs:
 
     - name: Relase
       id: release
-      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      with:
-        tag_name: ${{steps.output-date.outputs.OUTPUT_DATE}}
-        release_name: ${{steps.output-date.outputs.OUTPUT_DATE}}
-        body: |
-          "timestamp: ${{steps.output-date.outputs.OUTPUT_DATETIME}}"
+      run: |
+        gh release create ${{steps.output-date.outputs.OUTPUT_DATE}} --${{steps.output-date.outputs.OUTPUT_DATE}} --notes ""
 
     - name: Upload
       id: upload
-      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      with:
-        upload_url: ${{steps.release.outputs.upload_url}}
-        asset_path: ${{github.workspace}}/SDL3-${{steps.output-date.outputs.OUTPUT_DATE}}.zip
-        asset_name: SDL3-${{steps.output-date.outputs.OUTPUT_DATE}}.zip
-        asset_content_type: application/zip
+      run: |
+        gh release upload ${{steps.output-date.outputs.OUTPUT_DATE}} ${{github.workspace}}/SDL3-${{steps.output-date.outputs.OUTPUT_DATE}}.zip
+
+#    - name: Relase
+#      id: release
+#      uses: actions/create-release@v1
+#      env:
+#        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+#      with:
+#        tag_name: ${{steps.output-date.outputs.OUTPUT_DATE}}
+#        release_name: ${{steps.output-date.outputs.OUTPUT_DATE}}
+#        body: |
+#          "timestamp: ${{steps.output-date.outputs.OUTPUT_DATETIME}}"
+#
+#    - name: Upload
+#      id: upload
+#      uses: actions/upload-release-asset@v1
+#      env:
+#        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+#      with:
+#        upload_url: ${{steps.release.outputs.upload_url}}
+#        asset_path: ${{github.workspace}}/SDL3-${{steps.output-date.outputs.OUTPUT_DATE}}.zip
+#        asset_name: SDL3-${{steps.output-date.outputs.OUTPUT_DATE}}.zip
+#        asset_content_type: application/zip
+#
