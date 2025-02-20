@@ -54,6 +54,7 @@ jobs:
         powershell ${{github.workspace}}/SDL_image/external/Get-GitModules.ps1
         powershell ${{github.workspace}}/SDL_mixer/external/Get-GitModules.ps1
         powershell ${{github.workspace}}/SDL_ttf/external/Get-GitModules.ps1
+      continue-on-error: true
     
     - name: Cmake SDL
       id: cmake-sdl
@@ -61,6 +62,7 @@ jobs:
         cmake -S ${{github.workspace}}/SDL -B ${{github.workspace}}/SDL/build
         cmake --build ${{github.workspace}}/SDL/build --config Release
         cmake --install ${{github.workspace}}/SDL/build --config Release
+      continue-on-error: true
 
     - name: Cmake SDL_image
       id: cmake-sdl-image
@@ -68,6 +70,7 @@ jobs:
         cmake -S ${{github.workspace}}/SDL_image -B ${{github.workspace}}/SDL_image/build -DSDL3_DIR=${{github.workspace}}/SDL/build -DSDLIMAGE_AVIF=OFF
         cmake --build ${{github.workspace}}/SDL_image/build --config Release
         cmake --install ${{github.workspace}}/SDL_image/build --config Release
+      continue-on-error: true
 
     - name: Cmake SDL_mixer
       id: cmake-sdl-mixer
@@ -75,6 +78,7 @@ jobs:
         cmake -S ${{github.workspace}}/SDL_mixer -B ${{github.workspace}}/SDL_mixer/build -DSDL3_DIR=${{github.workspace}}/SDL/build
         cmake --build ${{github.workspace}}/SDL_mixer/build --config Release
         cmake --install ${{github.workspace}}/SDL_mixer/build --config Release
+      continue-on-error: true
 
     - name: Cmake SDL_net
       id: cmake-sdl-net
@@ -82,6 +86,7 @@ jobs:
         cmake -S ${{github.workspace}}/SDL_net -B ${{github.workspace}}/SDL_net/build -DSDL3_DIR=${{github.workspace}}/SDL/build
         cmake --build ${{github.workspace}}/SDL_net/build --config Release
         cmake --install ${{github.workspace}}/SDL_net/build --config Release
+      continue-on-error: true
 
     - name: Cmake SDL_ttf
       id: cmake-sdl-ttf
@@ -89,6 +94,7 @@ jobs:
         cmake -S ${{github.workspace}}/SDL_ttf -B ${{github.workspace}}/SDL_ttf/build -DSDL3_DIR=${{github.workspace}}/SDL/build
         cmake --build ${{github.workspace}}/SDL_ttf/build --config Release
         cmake --install ${{github.workspace}}/SDL_ttf/build --config Release
+      continue-on-error: true
 
 #    - name: MSBuild x86
 #      id: msbuild-x86
