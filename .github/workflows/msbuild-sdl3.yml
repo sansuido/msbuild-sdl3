@@ -129,11 +129,11 @@ jobs:
     - name: Copy dll
       id: copy-dll
       run: |
-        robocopy ${{github.workspace}}/SDL/build/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_image/build/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_mixer/build/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_net/build/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_ttf/build/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL/build/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_image/build/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_mixer/build/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_net/build/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_ttf/build/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
       continue-on-error: true
 
 #    - name: Copy dll x86
