@@ -54,26 +54,61 @@ jobs:
         powershell ${{github.workspace}}/SDL_image/external/Get-GitModules.ps1
         powershell ${{github.workspace}}/SDL_mixer/external/Get-GitModules.ps1
         powershell ${{github.workspace}}/SDL_ttf/external/Get-GitModules.ps1
-
-    - name: MSBuild x86
-      id: msbuild-x86
+    
+    - name: Cmake SDL
+      id: cmake-sdl
       run: |
-        msbuild ${{github.workspace}}/SDL/VisualC/SDL.sln /t:build /p:Configuration=Release /p:Platform="Win32"
-        msbuild ${{github.workspace}}/SDL_image/VisualC/SDL_image.sln /t:build /p:Configuration=Release /p:Platform="Win32"
-        msbuild ${{github.workspace}}/SDL_mixer/VisualC/SDL_mixer.sln /t:build /p:Configuration=Release /p:Platform="Win32"
-        msbuild ${{github.workspace}}/SDL_net/VisualC/SDL_net.sln /t:build /p:Configuration=Release /p:Platform="Win32"
-        msbuild ${{github.workspace}}/SDL_ttf/VisualC/SDL_ttf.sln /t:build /p:Configuration=Release /p:Platform="Win32"
-      continue-on-error: true
+        cmake -S ${{github.workspace}}/SDL -B ${{github.workspace}}/SDL/build
+        cmake --build ${{github.workspace}}/SDL/build --config Release
+        cmake --install ${{github.workspace}}/SDL/build --config Release
 
-    - name: MSBuild x64
-      id: msbuild-x64
+    - name: Cmake SDL_image
+      id: cmake-sdl-image
       run: |
-        msbuild ${{github.workspace}}/SDL/VisualC/SDL.sln /t:build /p:Configuration=Release /p:Platform="x64"
-        msbuild ${{github.workspace}}/SDL_image/VisualC/SDL_image.sln /t:build /p:Configuration=Release /p:Platform="x64"
-        msbuild ${{github.workspace}}/SDL_mixer/VisualC/SDL_mixer.sln /t:build /p:Configuration=Release /p:Platform="x64"
-        msbuild ${{github.workspace}}/SDL_net/VisualC/SDL_net.sln /t:build /p:Configuration=Release /p:Platform="x64"
-        msbuild ${{github.workspace}}/SDL_ttf/VisualC/SDL_ttf.sln /t:build /p:Configuration=Release /p:Platform="x64"
-      continue-on-error: true
+        cmake -S ${{github.workspace}}/SDL_image -B ${{github.workspace}}/SDL_image/build -DSDL3_DIR=${{github.workspace}}/SDL/build -DSDLIMAGE_AVIF=OFF
+        cmake --build ${{github.workspace}}/SDL_image/build --config Release
+        cmake --install ${{github.workspace}}/SDL_image/build --config Release
+
+    - name: Cmake SDL_mixer
+      id: cmake-sdl-mixer
+      run: |
+        cmake -S ${{github.workspace}}/SDL_mixer -B ${{github.workspace}}/SDL_mixer/build -DSDL3_DIR=${{github.workspace}}/SDL/build
+        cmake --build ${{github.workspace}}/SDL_mixer/build --config Release
+        cmake --install ${{github.workspace}}/SDL_mixer/build --config Release
+
+    - name: Cmake SDL_net
+      id: cmake-sdl-net
+      run: |
+        cmake -S ${{github.workspace}}/SDL_net -B ${{github.workspace}}/SDL_net/build -DSDL3_DIR=${{github.workspace}}/SDL/build
+        cmake --build ${{github.workspace}}/SDL_net/build --config Release
+        cmake --install ${{github.workspace}}/SDL_net/build --config Release
+
+    - name: Cmake SDL_ttf
+      id: cmake-sdl-ttf
+      run: |
+        cmake -S ${{github.workspace}}/SDL_ttf -B ${{github.workspace}}/SDL_ttf/build -DSDL3_DIR=${{github.workspace}}/SDL/build
+        cmake --build ${{github.workspace}}/SDL_ttf/build --config Release
+        cmake --install ${{github.workspace}}/SDL_ttf/build --config Release
+
+#    - name: MSBuild x86
+#      id: msbuild-x86
+#      run: |
+#        msbuild ${{github.workspace}}/SDL/VisualC/SDL.sln /t:build /p:Configuration=Release /p:Platform="Win32"
+#        msbuild ${{github.workspace}}/SDL_image/VisualC/SDL_image.sln /t:build /p:Configuration=Release /p:Platform="Win32"
+#        msbuild ${{github.workspace}}/SDL_mixer/VisualC/SDL_mixer.sln /t:build /p:Configuration=Release /p:Platform="Win32"
+#        msbuild ${{github.workspace}}/SDL_net/VisualC/SDL_net.sln /t:build /p:Configuration=Release /p:Platform="Win32"
+#        msbuild ${{github.workspace}}/SDL_ttf/VisualC/SDL_ttf.sln /t:build /p:Configuration=Release /p:Platform="Win32"
+#      continue-on-error: true
+#
+#    - name: MSBuild x64
+#      id: msbuild-x64
+#      run: |
+#        msbuild ${{github.workspace}}/SDL/VisualC/SDL.sln /t:build /p:Configuration=Release /p:Platform="x64"
+#        msbuild ${{github.workspace}}/SDL_image/VisualC/SDL_image.sln /t:build /p:Configuration=Release /p:Platform="x64"
+#        msbuild ${{github.workspace}}/SDL_mixer/VisualC/SDL_mixer.sln /t:build /p:Configuration=Release /p:Platform="x64"
+#        msbuild ${{github.workspace}}/SDL_net/VisualC/SDL_net.sln /t:build /p:Configuration=Release /p:Platform="x64"
+#        msbuild ${{github.workspace}}/SDL_ttf/VisualC/SDL_ttf.sln /t:build /p:Configuration=Release /p:Platform="x64"
+#      continue-on-error: true
 
     - name: Copy include
       id: copy-include
@@ -83,36 +118,51 @@ jobs:
         robocopy ${{github.workspace}}/SDL_mixer/include ${{github.workspace}}/dist/include/ /s /e
         robocopy ${{github.workspace}}/SDL_ttf/include ${{github.workspace}}/dist/include/ /s /e
         robocopy ${{github.workspace}}/SDL_net/include ${{github.workspace}}/dist/include/ /s /e
+      continue-on-error: true
 
-    - name: Copy dll x86
-      id: copy-dll-x86
+    - name: Copy dll
+      id: copy-dll
       run: |
-        robocopy ${{github.workspace}}/SDL/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_image/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_mixer/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_net/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_ttf/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL/build/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_image/build/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_mixer/build/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_net/build/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+        robocopy ${{github.workspace}}/SDL_ttf/build/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+      continue-on-error: true
 
-    - name: Copy dll x64
-      id: copy-dll-x64
-      run: |
-        robocopy ${{github.workspace}}/SDL/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_image/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_mixer/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_net/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
-        robocopy ${{github.workspace}}/SDL_ttf/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+#    - name: Copy dll x86
+#      id: copy-dll-x86
+#      run: |
+#        robocopy ${{github.workspace}}/SDL/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+#        robocopy ${{github.workspace}}/SDL_image/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+#        robocopy ${{github.workspace}}/SDL_mixer/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+#        robocopy ${{github.workspace}}/SDL_net/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+#        robocopy ${{github.workspace}}/SDL_ttf/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+#      continue-on-error: true
+
+#    - name: Copy dll x64
+#      id: copy-dll-x64
+#      run: |
+#        robocopy ${{github.workspace}}/SDL/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+#        robocopy ${{github.workspace}}/SDL_image/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+#        robocopy ${{github.workspace}}/SDL_mixer/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+#        robocopy ${{github.workspace}}/SDL_net/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+#        robocopy ${{github.workspace}}/SDL_ttf/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+#      continue-on-error: true
 
     - name: Copy dll external x86
       id: copy-dll-external-x86
       run: |
         robocopy ${{github.workspace}}/SDL_image/VisualC/external/optional/x86 ${{github.workspace}}/dist/lib/x86 *.dll
         robocopy ${{github.workspace}}/SDL_mixer/VisualC/external/optional/x86 ${{github.workspace}}/dist/lib/x86 *.dll
+      continue-on-error: true
 
     - name: Copy dll external x64
       id: copy-dll-external-x64
       run: |
         robocopy ${{github.workspace}}/SDL_image/VisualC/external/optional/x64 ${{github.workspace}}/dist/lib/x64 *.dll
         robocopy ${{github.workspace}}/SDL_mixer/VisualC/external/optional/x64 ${{github.workspace}}/dist/lib/x64 *.dll
+      continue-on-error: true
 
     - name: Copy LICENSE
       id: copy-license
