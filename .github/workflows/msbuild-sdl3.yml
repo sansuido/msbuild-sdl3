@@ -55,8 +55,8 @@ jobs:
         powershell ${{github.workspace}}/SDL_mixer/external/Get-GitModules.ps1
         powershell ${{github.workspace}}/SDL_ttf/external/Get-GitModules.ps1
 
-    - name: MSBuild Win32
-      id: msbuild-win32
+    - name: MSBuild x86
+      id: msbuild-x86
       run: |
         msbuild ${{github.workspace}}/SDL/VisualC/SDL.sln /t:build /p:Configuration=Release /p:Platform="Win32"
         msbuild ${{github.workspace}}/SDL_image/VisualC/SDL_image.sln /t:build /p:Configuration=Release /p:Platform="Win32"
@@ -75,28 +75,48 @@ jobs:
         msbuild ${{github.workspace}}/SDL_ttf/VisualC/SDL_ttf.sln /t:build /p:Configuration=Release /p:Platform="x64"
       continue-on-error: true
 
-    - name: Copy files
-      id: copy-files
+    - name: Copy include
+      id: copy-include
       run: |
         robocopy ${{github.workspace}}/SDL/include ${{github.workspace}}/dist/include/ /s /e
         robocopy ${{github.workspace}}/SDL_image/include ${{github.workspace}}/dist/include/ /s /e
         robocopy ${{github.workspace}}/SDL_mixer/include ${{github.workspace}}/dist/include/ /s /e
         robocopy ${{github.workspace}}/SDL_ttf/include ${{github.workspace}}/dist/include/ /s /e
         robocopy ${{github.workspace}}/SDL_net/include ${{github.workspace}}/dist/include/ /s /e
+
+    - name: Copy dll x86
+      id: copy-dll-x86
+      run: |
         robocopy ${{github.workspace}}/SDL/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
         robocopy ${{github.workspace}}/SDL_image/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
         robocopy ${{github.workspace}}/SDL_mixer/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
         robocopy ${{github.workspace}}/SDL_net/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
         robocopy ${{github.workspace}}/SDL_ttf/VisualC/Win32/Release ${{github.workspace}}/dist/lib/x86 *.dll *.lib
+
+    - name: Copy dll x64
+      id: copy-dll-x64
+      run: |
         robocopy ${{github.workspace}}/SDL/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
         robocopy ${{github.workspace}}/SDL_image/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
         robocopy ${{github.workspace}}/SDL_mixer/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
         robocopy ${{github.workspace}}/SDL_net/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
         robocopy ${{github.workspace}}/SDL_ttf/VisualC/x64/Release ${{github.workspace}}/dist/lib/x64 *.dll *.lib
+
+    - name: Copy dll external x86
+      id: copy-dll-external-x86
+      run: |
         robocopy ${{github.workspace}}/SDL_image/VisualC/external/optional/x86 ${{github.workspace}}/dist/lib/x86 *.dll
         robocopy ${{github.workspace}}/SDL_mixer/VisualC/external/optional/x86 ${{github.workspace}}/dist/lib/x86 *.dll
+
+    - name: Copy dll external x64
+      id: copy-dll-external-x64
+      run: |
         robocopy ${{github.workspace}}/SDL_image/VisualC/external/optional/x64 ${{github.workspace}}/dist/lib/x64 *.dll
         robocopy ${{github.workspace}}/SDL_mixer/VisualC/external/optional/x64 ${{github.workspace}}/dist/lib/x64 *.dll
+
+    - name: Copy LICENSE
+      id: copy-license
+      run: |
         robocopy ${{github.workspace}}/SDL ${{github.workspace}}/dist/license/SDL LICENSE*.*
         robocopy ${{github.workspace}}/SDL_image ${{github.workspace}}/dist/license/SDL_image LICENSE*.*
         robocopy ${{github.workspace}}/SDL_mixer ${{github.workspace}}/dist/license/SDL_mixer LICENSE*.*
