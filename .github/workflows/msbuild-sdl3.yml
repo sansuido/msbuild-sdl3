@@ -199,7 +199,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       run: |
-        gh release create ${{steps.output-date.outputs.OUTPUT_DATE}} --${{steps.output-date.outputs.OUTPUT_DATE}} --notes ""
+        gh release create ${{steps.output-date.outputs.OUTPUT_DATE}} --title ${{steps.output-date.outputs.OUTPUT_DATE}} --notes ""
 
     - name: Upload
       id: upload
