@@ -27,8 +27,8 @@ jobs:
       run: |
         echo "OUTPUT_DATE=$(date +'%Y-%m-%d')" >> "${env:GITHUB_OUTPUT}"
         echo "OUTPUT_DATETIME=$(date +'%Y-%m-%d %H:%M:%S')" >> "${env:GITHUB_OUTPUT}"
-        gh release view "RELEASE_VIEW=$(date +'%Y-%m-%d')" >> "${env:GITHUB_OUTPUT}"
-      continue-on-error: true
+        gh release view $(date +'%Y-%m-%d') >> $RELEASE_VIEW
+        echo "RELEASE_VIEW=$RELEASE_VIEW" >> "${env:GITHUB_OUTPUT}"
 
     - name: Show output date
       id: echo-output-date
@@ -201,7 +201,6 @@ jobs:
 
     - name: Relase
       id: release
-      if: ${{steps.output-date.outputs.RELEASE_VIEW}} != 'release not found'
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       run: |
