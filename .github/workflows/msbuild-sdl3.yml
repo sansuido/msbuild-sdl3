@@ -28,7 +28,7 @@ jobs:
         echo "OUTPUT_DATE=$(date +'%Y-%m-%d')" >> "${env:GITHUB_OUTPUT}"
         echo "OUTPUT_DATETIME=$(date +'%Y-%m-%d %H:%M:%S')" >> "${env:GITHUB_OUTPUT}"
         gh release view "RELEASE_VIEW=$(date +'%Y-%m-%d')" >> "${env:GITHUB_OUTPUT}"
-     
+      continue-on-error: true
 
     - name: Show output date
       id: echo-output-date
