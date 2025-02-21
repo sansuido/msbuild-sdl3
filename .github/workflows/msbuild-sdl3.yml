@@ -207,7 +207,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       run: |
-        gh release upload ${{steps.output-date.outputs.OUTPUT_DATE}} ${{github.workspace}}/SDL3-${{steps.output-date.outputs.OUTPUT_DATE}}.zip
+        gh release upload ${{steps.output-date.outputs.OUTPUT_DATE}} ${{github.workspace}}/SDL3-${{steps.output-date.outputs.OUTPUT_DATE}}.zip --clobber
 
 #    - name: Relase
 #      id: release
