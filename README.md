@@ -1,3 +1,10 @@
+# Note
+
+This repository has been inherited by the following repositories:
+
+https://github.com/sansuido/build-sdl3
+
+
 # MSBuild SDL3
 
 Please run `build.bat`.
